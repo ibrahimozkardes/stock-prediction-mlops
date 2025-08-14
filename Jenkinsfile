@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "stock-predictor"
-        REGISTRY = "dockerhub_username"
+        REGISTRY = "ibrahimozkardes"
     }
 
     stages {
