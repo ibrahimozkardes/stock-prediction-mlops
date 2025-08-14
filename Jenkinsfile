@@ -21,13 +21,13 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKERHUB_TOKEN')]) {
                     bat """
-                    echo %DOCKERHUB_TOKEN% | docker login -u dockerhub_username --password-stdin
+                    docker login -u ibrahimozkardes -p %DOCKERHUB_TOKEN%
+                    docker push ${REGISTRY}/${IMAGE_NAME}:latest
                     """
-
-                    bat "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
                 }
             }
         }
+
         stage('Deploy to Kubernetes') {
             steps {
                 bat "kubectl apply -f k8s\\deployment.yaml"
