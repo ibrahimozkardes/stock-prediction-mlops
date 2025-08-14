@@ -4,6 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "stock-predictor"
         REGISTRY = "ibrahimozkardes"
+        MLFLOW_TRACKING_URI = "http://mlflow-server:5000" // Tracking server URL
     }
 
     stages {
@@ -12,6 +13,7 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/ibrahimozkardes/stock-prediction-mlops.git'
             }
         }
+
         stage('Docker Login') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKERHUB_TOKEN')]) {
@@ -19,11 +21,13 @@ pipeline {
                 }
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 bat "docker build -t ${REGISTRY}/${IMAGE_NAME}:latest ."
             }
         }
+
         stage('Push Docker Image') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKERHUB_TOKEN')]) {
@@ -34,6 +38,13 @@ pipeline {
                 }
             }
         }
+
+        stage('Train & Log Model') {
+            steps {
+                bat "python train_model.py"
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
