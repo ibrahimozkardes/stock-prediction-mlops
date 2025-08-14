@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-predictor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: stock-predictor
+  template:
+    metadata:
+      labels:
+        app: stock-predictor
+    spec:
+      containers:
+      - name: stock-predictor
+        image: dockerhub_username/stock-predictor:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: SSL_CERT_FILE
+          value: "/app/cacert.pem"
