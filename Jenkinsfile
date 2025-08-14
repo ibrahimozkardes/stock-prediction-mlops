@@ -34,13 +34,12 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy to Kubernetes') {
             steps {
-                bat "kubectl apply -f deployment.yaml"
-                bat "kubectl apply -f service.yaml"
-
-            }
+                withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                    bat "kubectl apply -f deployment.yaml"
+                    bat "kubectl apply -f service.yaml"
+                }
         }
     }
 }
