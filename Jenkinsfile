@@ -13,6 +13,14 @@ pipeline {
             }
         }
 
+        stage('Test K8s Connection') {
+            steps {
+                withKubeConfig([credentialsId: 'kubeconfig-file']) {
+                    sh 'kubectl get pods -A'
+                }
+            }
+        }
+
         stage('Train Model') {
             steps {
                 echo "📈 Model eğitiliyor..."
