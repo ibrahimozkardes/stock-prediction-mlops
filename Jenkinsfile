@@ -4,13 +4,19 @@ pipeline {
     environment {
         IMAGE_NAME = "stock-predictor"
         REGISTRY = "ibrahimozkardes"
-        MLFLOW_TRACKING_URI = "http://mlflow-server:5000" // Tracking server URL
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/ibrahimozkardes/stock-prediction-mlops.git'
+            }
+        }
+
+        stage('Train Model') {
+            steps {
+                echo "📈 Model eğitiliyor..."
+                bat "python train_model.py"
             }
         }
 
@@ -22,26 +28,10 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build & Push Docker Image') {
             steps {
                 bat "docker build -t ${REGISTRY}/${IMAGE_NAME}:latest ."
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKERHUB_TOKEN')]) {
-                    bat """
-                    docker login -u ibrahimozkardes -p %DOCKERHUB_TOKEN%
-                    docker push ${REGISTRY}/${IMAGE_NAME}:latest
-                    """
-                }
-            }
-        }
-
-        stage('Train & Log Model') {
-            steps {
-                bat "python train_model.py"
+                bat "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
             }
         }
 
@@ -51,6 +41,18 @@ pipeline {
                     bat "kubectl apply -f deployment.yaml"
                     bat "kubectl apply -f service.yaml"
                 }
+            }
+        }
+
+        stage('Monitoring') {
+            steps {
+                echo "🔍 Pod ve API monitoring başlatılıyor..."
+                // Pod status kontrolü
+                bat "kubectl get pods -l app=stock-predictor"
+                // Pod resource usage
+                bat "kubectl top pods -l app=stock-predictor"
+                // Basit API health check
+                bat "curl -s http://localhost:8000/ | findstr /i 'Stock Predictor API çalışıyor'"
             }
         }
     }

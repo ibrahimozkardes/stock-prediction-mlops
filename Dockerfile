@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Uygulama dosyalarını kopyala
+# Uygulama dosyalarını ve model dosyasını kopyala
 COPY . .
 
 # FastAPI başlat
