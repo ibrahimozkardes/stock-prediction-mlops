@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: stock-predictor
-        image: dockerhub_username/stock-predictor:latest
+        image: ibrahimozkardes/stock-predictor:latest
         ports:
         - containerPort: 8000
         env:
