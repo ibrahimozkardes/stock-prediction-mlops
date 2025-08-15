@@ -23,9 +23,8 @@ pipeline {
 
         stage('Train Model') {
             steps {
-                echo "📈 Model eğitiliyor..."
                 bat """
-                call venv\\Scripts\\activate.bat
+                call "%WORKSPACE%\\venv\\Scripts\\activate.bat"
                 python train_model.py
                 """
             }
