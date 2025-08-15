@@ -24,8 +24,7 @@ pipeline {
         stage('Train Model') {
             steps {
                 bat """
-                call "%WORKSPACE%\\venv\\Scripts\\activate.bat"
-                python train_model.py
+                "%WORKSPACE%\\venv\\Scripts\\python.exe" train_model.py
                 """
             }
         }
