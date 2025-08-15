@@ -24,7 +24,8 @@ pipeline {
         stage('Train Model') {
             steps {
                 bat """
-                "C:\\Users\\İbrahim\\Desktop\\stock-prediction-mlops\\.venv\\Scripts\\python.exe" train_model.py
+                call venv\Scripts\activate.bat
+                python train_model.py
                 """
             }
         }
