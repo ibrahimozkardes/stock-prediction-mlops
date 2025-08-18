@@ -5,4 +5,3 @@ joblib
 fastapi
 uvicorn
 certifi
-mlflow
