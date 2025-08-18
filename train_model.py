@@ -3,10 +3,12 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import joblib
 import pandas as pd
+import argparse
+import os
 
-MODEL_PATH = "model.pkl"
+DEFAULT_MODEL_PATH = "model/model.pkl"
 
-def train_or_update_model(df: pd.DataFrame):
+def train_or_update_model(df: pd.DataFrame, model_path: str = DEFAULT_MODEL_PATH):
     X = df[["Return", "MA5", "MA20"]]
     y = df["Target"]
 
@@ -23,16 +25,22 @@ def train_or_update_model(df: pd.DataFrame):
     print(f"✅ Model accuracy: {acc:.2f}")
 
     # Modeli kaydet
-    joblib.dump(model, MODEL_PATH)
-    print(f"💾 Model kaydedildi: {MODEL_PATH}")
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    joblib.dump(model, model_path)
+    print(f"💾 Model kaydedildi: {model_path}")
 
     return model
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", type=str, default=DEFAULT_MODEL_PATH, help="Path to save trained model")
+    args = parser.parse_args()
+
     from fetch_data import fetch_or_load
     from features import prepare_features
 
     SYMBOL = "AAPL"
     df = fetch_or_load(SYMBOL)
     df_feat = prepare_features(df)
-    train_or_update_model(df_feat)
+
+    train_or_update_model(df_feat, args.output)
