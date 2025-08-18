@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: stock-predictor
+  labels:
+    app: stock-predictor
 spec:
   replicas: 2
   selector:
@@ -15,6 +17,7 @@ spec:
       containers:
       - name: stock-predictor
         image: ibrahimozkardes/stock-predictor:latest
+        imagePullPolicy: Always   # Yeni imajı her zaman çek
         ports:
         - containerPort: 8000
         readinessProbe:
@@ -23,9 +26,20 @@ spec:
             port: 8000
           initialDelaySeconds: 5
           periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
         livenessProbe:
           httpGet:
             path: /
             port: 8000
           initialDelaySeconds: 10
           periodSeconds: 20
+          timeoutSeconds: 2
+          failureThreshold: 3
+        resources:   # Kaynak limitleri
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"

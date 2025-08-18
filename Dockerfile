@@ -8,8 +8,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Uygulama dosyalarını ve model dosyasını kopyala
+# Uygulama dosyalarını kopyala
 COPY . .
+
+# Model dosyasını image içine dahil et (eğitim sonrası Jenkins buraya koyacak)
+COPY model/model.pkl /app/model/model.pkl
 
 # FastAPI başlat
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

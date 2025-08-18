@@ -4,6 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "stock-predictor"
         REGISTRY = "ibrahimozkardes"
+        MODEL_PATH = "model/model.pkl"
     }
 
     stages {
@@ -13,19 +14,14 @@ pipeline {
             }
         }
 
-        stage('Test K8s Connection') {
-            steps {
-                withKubeConfig([credentialsId: 'kubeconfig-file']) {
-                    bat 'kubectl get pods -A'
-                }
-            }
-        }
-
         stage('Train Model') {
             steps {
-                bat """
-                venv\\Scripts\\activate.bat
-                python train_model.py
+                sh """
+                python3 -m venv venv
+                source venv/bin/activate
+                pip install -r requirements.txt
+                mkdir -p model
+                python train_model.py --output ${MODEL_PATH}
                 """
             }
         }
@@ -33,23 +29,23 @@ pipeline {
         stage('Docker Login') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKERHUB_TOKEN')]) {
-                    bat "docker login -u ibrahimozkardes -p %DOCKERHUB_TOKEN%"
+                    sh "echo $DOCKERHUB_TOKEN | docker login -u ${REGISTRY} --password-stdin"
                 }
             }
         }
 
         stage('Build & Push Docker Image') {
             steps {
-                bat "docker build -t ${REGISTRY}/${IMAGE_NAME}:latest ."
-                bat "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
+                sh "docker build -t ${REGISTRY}/${IMAGE_NAME}:latest ."
+                sh "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
-                    bat "kubectl apply -f deployment.yaml"
-                    bat "kubectl apply -f service.yaml"
+                    sh "kubectl apply -f deployment.yaml"
+                    sh "kubectl apply -f service.yaml"
                 }
             }
         }
@@ -57,12 +53,14 @@ pipeline {
         stage('Monitoring') {
             steps {
                 echo "🔍 Pod ve API monitoring başlatılıyor..."
-                // Pod status kontrolü
-                bat "kubectl get pods -l app=stock-predictor"
-                // Pod resource usage
-                bat "kubectl top pods -l app=stock-predictor"
-                // Basit API health check
-                bat "curl -s http://localhost:8000/ | findstr /i 'Stock Predictor API çalışıyor'"
+                sh "kubectl get pods -l app=stock-predictor"
+                sh "kubectl top pods -l app=stock-predictor || echo '⚠️ Metrics server yok'"
+                sh "kubectl get svc stock-predictor"
+                // Health check (service IP üzerinden)
+                sh """
+                SERVICE_IP=$(kubectl get svc stock-predictor -o jsonpath='{.spec.clusterIP}')
+                curl -s http://$SERVICE_IP:8000/ | grep 'Stock Predictor'
+                """
             }
         }
     }

@@ -1,0 +1,97 @@
+#############################################
+# Genel Python & ML Ops .gitignore (TR)     #
+#############################################
+
+# --- Python derleme artefaktları ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Paketleme / dağıtım ---
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# --- Sanal ortamlar ---
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.*
+!.env.example   # Örnek env dosyası versi kontrolünde kalsın
+
+# --- Cache / Geçici ---
+.cache/
+*.cache
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.pytype/
+.nox/
+.tox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+pytestdebug.log
+
+# --- Tip / analiz araçları ---
+dmypy.json
+.dmypy.json
+.pyre/
+
+# --- Jupyter ---
+.ipynb_checkpoints/
+
+# --- Loglar ---
+logs/
+*.log
+
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.code-workspace
+
+# --- Docker ---
+*.tar
+
+# --- Veri dosyaları ---
+# Ham veri & günlük oluşan csv'leri ignore et
+data/
+!data/README.md          # data klasörü repoda kalsın
+*.csv
+!data/sample*.csv        # Örnek küçük csv dosyaları tutulabilir
+
+# --- Model artefaktları ---
+models/
+*.pkl
+*.joblib
+!model.pkl               # Versiyonlanmış referans model kalsın (gerekmezse bu satırı silin)
+
+# --- Diğer çıktı klasörleri ---
+artifacts/
+outputs/
+reports/
+
+# --- Kubernetes gizli dosyalar (ör: şablonlar) ---
+*secret*.yaml
+*.sealed-secret.yaml
+
+# --- IDE ayar dosyaları (opsiyonel) ---
+*.iml
+
+# --- Geçici / deneysel ---
+tmp/
+temp/
+scratch/
+
+# --- Notlar ---
+# 1) model sürümü tutmak istiyorsanız sadece belirli pkl dosyalarını ! ile hariç bırakın.
+# 2) Büyük veri dosyaları için: Git LFS veya harici depo (S3 vb.) kullanın.
+# 3) .env dosyasını hiçbir zaman production gizli bilgileriyle commit etmeyin; sadece .env.example bırakın.
+
