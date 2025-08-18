@@ -53,7 +53,7 @@ pipeline {
         stage('Monitoring') {
             steps {
                 echo "🔍 Pod ve API monitoring başlatılıyor..."
-                sh "kubectl get pods -l app=stock-predictor || echo 'Metrics server yok'"
+                sh "kubectl get pods -l app=stock-predictor"
                 sh "kubectl top pods -l app=stock-predictor || echo '⚠️ Metrics server yok'"
                 sh "kubectl get svc stock-predictor"
                 // Health check (service IP üzerinden)
