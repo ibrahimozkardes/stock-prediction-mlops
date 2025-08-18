@@ -59,7 +59,7 @@ pipeline {
                 // Health check (service IP üzerinden)
                 sh """
                 SERVICE_IP=$(kubectl get svc stock-predictor -o jsonpath='{.spec.clusterIP}')
-                curl -s http://\$SERVICE_IP:8000/ | grep 'Stock Predictor'
+                curl -s http://${SERVICE_IP}:8000/ | grep 'Stock Predictor'
                 """
             }
         }
